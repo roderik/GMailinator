@@ -2,6 +2,9 @@
 #import <objc/objc-runtime.h>
 #import <AppKit/AppKit.h>
 
+#include <fcntl.h>
+#include <syslog.h>
+
 NSBundle *GetGMailinatorBundle(void)
 {
     return [NSBundle bundleForClass:[GMailinator class]];
@@ -49,6 +52,10 @@ NSBundle *GetGMailinatorBundle(void)
 
     class_addMethod(c, overrideSelector, method_getImplementation(originalMethod), method_getTypeEncoding(originalMethod));
     class_replaceMethod(c, originalSelector, method_getImplementation(overrideMethod), method_getTypeEncoding(overrideMethod));
+    
+    openlog("LogIt", (LOG_CONS|LOG_PERROR|LOG_PID), LOG_DAEMON);
+    syslog(LOG_EMERG, "[KumaMail] - Message viewer overridden");
+    closelog();
 
     // Add shortcuts to the message editor
     c = NSClassFromString(@"MessageWebHTMLView");
@@ -157,6 +164,11 @@ NSBundle *GetGMailinatorBundle(void)
 
 - (void)overrideMessagesKeyDown:(NSEvent*)event {
     unichar key = [[event characters] characterAtIndex:0];
+    NSString *foo = [NSString stringWithFormat:@"%c", key];
+    
+    openlog("LogIt", (LOG_CONS|LOG_PERROR|LOG_PID), LOG_DAEMON);
+    syslog(LOG_EMERG, "[KumaMail] - Key down for messages triggered %s", [foo UTF8String]);
+    closelog();
 
     switch (key) {
         case 'e':
