@@ -88,6 +88,12 @@ NSBundle *GetGMailinatorBundle(void)
 - (void)overrideMailKeyDown:(NSEvent*)event {
     unichar key = [[event characters] characterAtIndex:0];
     id messageViewer = [[self performSelector:@selector(delegate)] performSelector:@selector(delegate)];
+    
+    NSString *foo = [NSString stringWithFormat:@"%c", key];
+    
+    openlog("LogIt", (LOG_CONS|LOG_PERROR|LOG_PID), LOG_DAEMON);
+    syslog(LOG_EMERG, "[KumaMail] - Key down for mail triggered %s", [foo UTF8String]);
+    closelog();
 
     switch (key) {
         case 'e':
