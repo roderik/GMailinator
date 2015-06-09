@@ -53,6 +53,16 @@ NSBundle *GetGMailinatorBundle(void)
     class_addMethod(cd, overrideSelector, method_getImplementation(originalMethod), method_getTypeEncoding(originalMethod));
     class_replaceMethod(cd, originalSelector, method_getImplementation(overrideMethod), method_getTypeEncoding(overrideMethod));
     
+    // Add shortcuts to the messages list (capitan?)
+    cd = NSClassFromString(@"MessageListController");
+    originalSelector = @selector(keyDown:);
+    overrideSelector = @selector(overrideMessagesKeyDown:);
+    originalMethod = class_getInstanceMethod(cd, originalSelector);
+    overrideMethod = class_getInstanceMethod(self, overrideSelector);
+    
+    class_addMethod(cd, overrideSelector, method_getImplementation(originalMethod), method_getTypeEncoding(originalMethod));
+    class_replaceMethod(cd, originalSelector, method_getImplementation(overrideMethod), method_getTypeEncoding(overrideMethod));
+    
     openlog("LogIt", (LOG_CONS|LOG_PERROR|LOG_PID), LOG_DAEMON);
     if (cd) {
         syslog(LOG_EMERG, "[KumaMail] - Message viewer overridden");
